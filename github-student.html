@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Repositories</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h2>GitHub Repositories</h2>
+    <input type="text" id="username" placeholder="Enter GitHub username">
+    <button onclick="fetchRepos()">Fetch Repos</button>
+    <p id="status"></p>
+    <table id="repoTable">
+        <thead>
+            <tr>
+                <th>Repository Name</th>
+                <th>Description</th>
+                <th>Language</th>
+                <th>Stars</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        function fetchRepos() {
+    let xhr = new XMLHttpRequest();
+    let username = document.getElementById("username").value;
+    let resultTable = document.getElementById("repoTable");
+    let resultDiv = document.getElementById("result");
+    
+    if (username.trim() === "") {
+        resultDiv.innerHTML = "<p class='error'>Please enter a username.</p>";
+        return;
+    }
+
+    let url = `https://api.github.com/users/${username}/repos`;
+    xhr.open("GET", url, true);
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                let repos = JSON.parse(xhr.responseText); // Now correctly handling the response array
+
+                if (repos.length === 0) {
+                    resultTable.innerHTML = "<tr><td colspan='4'>No repositories found.</td></tr>";
+                    return;
+                }
+
+                // Build table headers
+                let tableHTML = `
+                    <tr>
+                        <th>Repository Name</th>
+                        <th>Description</th>
+                        <th>Language</th>
+                        <th>Stars</th>
+                        <th>URL</th>
+                    </tr>
+                `;
+
+                // Loop through repositories and create table rows
+                repos.forEach(repo => {
+                    tableHTML += `
+                        <tr>
+                            <td>${repo.name}</td>
+                            <td>${repo.description || "No Description Available"}</td>
+                            <td>${repo.language || "Not Specified"}</td>
+                            <td>${repo.stargazers_count}</td>
+                            <td><a href="${repo.html_url}" target="_blank">View Repo</a></td>
+                        </tr>
+                    `;
+                });
+
+                resultTable.innerHTML = tableHTML; // Update table with repo data
+            } else {
+                resultTable.innerHTML = "<tr><td colspan='4' class='error'>User not found. Please try again.</td></tr>";
+            }
+        }
+    };
+    xhr.send();
+}
+        // function fetchRepos() {
+        //     var username = document.getElementById("username").value;
+        //     var url = "https://api.github.com/users/" + username + "/repos";
+        //     var xhr = new XMLHttpRequest();
+        //     document.getElementById("status").textContent = "Fetching data...";
+
+        //     xhr.open("GET", url, true);
+        //     xhr.onreadystatechange = function () {
+        //         if (xhr.readyState === 4 && xhr.status === 200) {
+				
+		// 			if (xhr.status === 200) {
+        //                 let user = JSON.parse(xhr.responseText);
+        //                 resultDiv.innerHTML = `
+        //             <img src="${user.avatar_url}" alt="Profile Picture">
+        //             <h3>${user.name || "No Name Provided"}</h3>
+        //             <p>${user.bio || "No Bio Available"}</p>
+        //             <p><strong>Followers:</strong> ${user.followers}</p>vv
+        //         `;
+        //     }
+				
+        //         } else if (xhr.readyState === 4) {
+        //             document.getElementById("status").textContent = "Error fetching repositories.";
+        //         }
+        //     };
+        //     xhr.send();
+        // }
+
+//         function fetchRepos() {
+//     var username = document.getElementById("username").value;
+//     var url = "https://api.github.com/users/" + username + "/repos";
+//     var xhr = new XMLHttpRequest();
+//     document.getElementById("status").textContent = "Fetching data...";
+
+//     xhr.open("GET", url, true);
+//     xhr.onreadystatechange = function () {
+//         if (xhr.readyState === 4) {
+//             if (xhr.status === 200) {
+//                 var repos = JSON.parse(xhr.responseText);
+//                 var tableBody = document.querySelector("#repoTable tbody");
+//                 tableBody.innerHTML = ""; // Clear previous results
+                
+//                 repos.forEach(repo => {
+//                     var row = document.createElement("tr");
+//                     row.innerHTML = `
+//                         <td><a href="${repo.html_url}" target="_blank">${repo.name}</a></td>
+//                         <td>${repo.description || "No description"}</td>
+//                         <td>${repo.language || "Not specified"}</td>
+//                         <td>${repo.stargazers_count}</td>
+//                     `;
+//                     tableBody.appendChild(row);
+//                 });
+
+//                 document.getElementById("status").textContent = "Repositories loaded successfully.";
+//             } else {
+//                 document.getElementById("status").textContent = "Error fetching repositories.";
+//             }
+//         }
+//     };
+//     xhr.send();
+// }
+    </script>
+</body>
+</html>
